@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.ar_insight_lens.MainActivity">
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="12dp"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:text="@string/overview"
+        app:layout_constraintBottom_toTopOf="@+id/btn_popup"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/guideline4" />
+
+    <Button
+        android:id="@+id/btn_listen"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/custom_button"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:nextFocusLeft="@+id/btn_popup"
+        android:nextFocusRight="@+id/btn_listen"
+        android:text="@string/btn_text_listen"
+        app:layout_constraintEnd_toStartOf="@+id/guideline3"
+        app:layout_constraintStart_toStartOf="@+id/guideline"
+        app:layout_constraintTop_toTopOf="@+id/btn_popup" />
+
+    <Button
+        android:id="@+id/btn_popup"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/custom_button"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:nextFocusLeft="@+id/btn_clear"
+        android:nextFocusRight="@+id/btn_listen"
+        android:text="@string/btn_text_pop_up"
+        app:layout_constraintBottom_toTopOf="@+id/btn_clear"
+        app:layout_constraintEnd_toStartOf="@+id/guideline"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="@+id/guideline2"
+        tools:layout_constraintBottom_creator="1"
+        tools:layout_constraintStart_creator="1" />
+
+    <Button
+        android:id="@+id/btn_clear"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/custom_button"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:nextFocusLeft="@+id/btn_restore"
+        android:nextFocusRight="@+id/btn_popup"
+        android:text="@string/btn_text_clear"
+        app:layout_constraintBottom_toTopOf="@+id/btn_restore"
+        app:layout_constraintStart_toStartOf="@+id/btn_popup"
+        app:layout_constraintEnd_toEndOf="@+id/btn_popup"
+        tools:layout_constraintBottom_creator="1"
+        tools:layout_constraintStart_creator="1"
+        tools:layout_constraintEnd_creator="1" />
+
+    <Button
+        android:id="@+id/btn_restore"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/custom_button"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:nextFocusLeft="@+id/edit_textBox"
+        android:nextFocusRight="@+id/btn_clear"
+        android:text="@string/btn_text_restore"
+        app:layout_constraintBottom_toTopOf="@+id/edit_textBox"
+        app:layout_constraintStart_toStartOf="@+id/btn_clear"
+        app:layout_constraintEnd_toEndOf="@+id/btn_clear"
+        tools:layout_constraintBottom_creator="1"
+        tools:layout_constraintStart_creator="1"
+        tools:layout_constraintEnd_creator="1" />
+
+    <EditText
+        android:id="@+id/edit_textBox"
+        android:layout_width="0dp"
+        android:layout_height="43dp"
+        android:layout_marginBottom="4dp"
+        android:clickable="false"
+        android:ems="10"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:hint="@string/entry_hint"
+        android:inputType="textPersonName"
+        android:text="@string/default_text"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/btn_restore"
+        app:layout_constraintEnd_toEndOf="@+id/btn_restore"
+        tools:layout_constraintBottom_creator="1"
+        tools:layout_constraintStart_creator="1"
+        tools:layout_constraintEnd_creator="1" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.58" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.03125" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.92" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.05" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
