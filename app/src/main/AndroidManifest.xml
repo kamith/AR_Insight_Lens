@@ -10,7 +10,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AR_Insight_Lens"
+        android:theme="@style/RegularTheme_AR_Insight_Lens"
         tools:targetApi="30">
 
         <!-- Declaration of MainActivity -->

@@ -36,6 +36,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.app.Activity;
 import android.util.Log;
@@ -64,7 +65,23 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // NEW STUFF
+        // Apply the stored theme before setContentView
+        SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
+        int themeId = prefs.getInt("themeId", R.style.RegularTheme_AR_Insight_Lens); // Default theme
+        setTheme(themeId);
+
         setContentView(R.layout.activity_main);
+
+        // Setup buttons with onClick listeners to change the theme
+        setupThemeChangeButton(R.id.btn_1, R.style.RegularTheme_AR_Insight_Lens);
+        setupThemeChangeButton(R.id.btn_2, R.style.BlackAndWhiteTheme_AR_Insight_Lens);
+        setupThemeChangeButton(R.id.btn_3, R.style.DeuteranopiaTheme_AR_Insight_Lens);
+        setupThemeChangeButton(R.id.btn_4, R.style.ProtanopiaTheme_AR_Insight_Lens);
+        setupThemeChangeButton(R.id.btn_5, R.style.TritanopiaTheme_AR_Insight_Lens);
+
+        // END OF NEW STUFF
+        //setContentView(R.layout.activity_main);
 
         buttonListen = (Button) findViewById(R.id.btn_listen);
         buttonPopup = (Button) findViewById(R.id.btn_popup);
@@ -110,6 +127,33 @@ public class MainActivity extends Activity {
         // Now register another intent handler to demonstrate intents sent from the service
         myIntentReceiver = new MyIntentReceiver();
         registerReceiver(myIntentReceiver , new IntentFilter(CUSTOM_SDK_INTENT));
+    }
+
+    /**
+     * Sets up a button to change the application's theme.
+     *
+     * This method assigns an OnClickListener to a button identified by buttonId. When the button is clicked,
+     * it saves the specified themeId to SharedPreferences and restarts the activity to apply the new theme.
+     *
+     * @param buttonId The resource ID of the button that will change the theme.
+     * @param themeId The resource ID of the theme to be applied when the button is clicked.
+     *
+     * Note:
+     * - The activity will be recreated when the theme is changed, so ensure to handle any necessary state
+     *   saving/restoration.
+     * - This method requires the activity to have a valid context for SharedPreferences and must be called
+     *   within the lifecycle of an activity (typically in onCreate).
+     * - The themes referenced by themeId should be defined in the styles.xml file.
+     */
+    private void setupThemeChangeButton(int buttonId, int themeId) {
+        findViewById(buttonId).setOnClickListener(view -> {
+            SharedPreferences.Editor editor = getSharedPreferences("AppPrefs", MODE_PRIVATE).edit();
+            editor.putInt("themeId", themeId);
+            editor.apply();
+
+            // Restart the activity to apply the new theme
+            recreate();
+        });
     }
 
 

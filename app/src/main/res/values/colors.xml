@@ -7,14 +7,25 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="gray">#656565</color>
     <color name="grayedOut">#99BBFF</color>
     <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="completedDeuteranopiaColor">#303F9F</color>
+    <color name="completedProtanopiaColor">#303F9F</color>
+    <color name="workingDeuteranopiaColor1">#FF4786</color>
+    <color name="workingRegularColor">#DA0000</color>
+    <color name="workingTritanopiaColor">#DA0000</color>
+    <color name="completedRegularColor">#00C600</color>
+    <color name="completedTritanopiaColor">#00C600</color>
     <color name="yellow1">#ffffcc</color>
-    <color name="yellow2">#ffff00</color>
+    <color name="yellow2">#FFFF00</color>
+    <color name="workingProtanopiaColor">#FFFF00</color>
+    <color name="workingDeuteranopiaColor2">#FFFF00</color>
     <color name="orange1">#ffcc66</color>
     <color name="orange2">#ff8800</color>
     <color name="blue1">#6699ff</color>
     <color name="blue2">#0000ff</color>
+    // attributes
+    <attr name="startColor" format="color"/>
+    <attr name="endColor" format="color"/>
 </resources>
