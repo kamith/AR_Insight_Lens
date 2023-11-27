@@ -65,7 +65,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // NEW STUFF
+        /** NEW STUFF
         // Apply the stored theme before setContentView
         SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
         int themeId = prefs.getInt("themeId", R.style.RegularTheme_AR_Insight_Lens); // Default theme
@@ -80,8 +80,8 @@ public class MainActivity extends Activity {
         setupThemeChangeButton(R.id.btn_4, R.style.ProtanopiaTheme_AR_Insight_Lens);
         setupThemeChangeButton(R.id.btn_5, R.style.TritanopiaTheme_AR_Insight_Lens);
 
-        // END OF NEW STUFF
-        //setContentView(R.layout.activity_main);
+        END OF NEW STUFF **/
+        setContentView(R.layout.activity_main);
 
         buttonListen = (Button) findViewById(R.id.btn_listen);
         buttonPopup = (Button) findViewById(R.id.btn_popup);
