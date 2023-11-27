@@ -125,14 +125,22 @@ public class VoiceCmdReceiver  extends BroadcastReceiver {
             // Please always keep the wake word "hello vuzix" to prevent confusion. You can add additional
             // wake words specific to your application by imitating the code below
             try {
+                sc.insertWakeWordPhrase("hello luna");
                 sc.insertWakeWordPhrase("hello vuzix");      // Add-back the default phrase for consistency (Blade and M400 only)
-                sc.insertWakeWordPhrase("hello sample app"); // Add application specific wake-up phrase (Blade and M400 only)
+                sc.insertWakeWordPhrase("hello insight lens"); // Add application specific wake-up phrase (Blade and M400 only)
+                sc.insertWakeWordPhrase("hey luna");
+                sc.insertWakeWordPhrase("hey vuzix");
+                sc.insertWakeWordPhrase("hey insight lens");
+                sc.insertWakeWordPhrase("start");
+                sc.insertWakeWordPhrase("begin");
             } catch (NoSuchMethodError e) {
                 Log.i(mMainActivity.LOG_TAG, "Setting wake words is not supported. It is introduced in M300 v1.6.6, Blade v2.6, and M400 v1.0.0");
             }
 
             try {
                 // For all platforms, the voice-off phrase can be modified
+                sc.insertVoiceOffPhrase("stop");
+                sc.insertVoiceOffPhrase("end");
                 sc.insertVoiceOffPhrase("voice off");      // Add-back the default phrase for consistency
                 sc.insertVoiceOffPhrase("privacy please"); // Add application specific stop listening phrase
             } catch (NoSuchMethodError e) {
