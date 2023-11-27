@@ -47,9 +47,6 @@
         app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Fifth Button -->
-
-    <!-- Horizontal Guideline for Button Alignment -->
-
     <Button
         android:id="@+id/btn_5"
         android:layout_width="wrap_content"
@@ -62,6 +59,7 @@
         app:layout_constraintTop_toBottomOf="@+id/btn_4"
         app:layout_constraintVertical_bias="0.0" />
 
+    <!-- Horizontal Guideline for Button Alignment -->
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline4"
         android:layout_width="wrap_content"
