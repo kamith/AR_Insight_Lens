@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "tribal-contact-406500",
+  "private_key_id": "6ac385f3d54d4f331eca05e7b1d9e5673b3c370b",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDG9l4YteBTUT1K\n7wKJg2/2taYlN9NEOovKXk4hSgbecOAP48r2GorQroyPmVlItBSSiGahoUmO5CNT\nKaXuF/4lK9tQCiDjSg+Dc30/2O+DRIL/Akf7f0PQbp3AIPkmkWprIxNgjSDoEvs5\nmJDUIqoGK6C9sT4eQXgayEpbD2aqy80NUnbVo83RjsruYpGj2lx7ji7pFGaPjQgu\n/Wuboz1S3RoJFtzhVAlP5S/POGKuNheUkUOH6ydESNnPSgQqLdSmTtj8eNRtXT+B\nFSLJAskffhALYq9ntLXOwkwFFn+2LdwneAczogb7aJhzeBUvsTCiV5HiwSBjYqbf\nFRPejEf1AgMBAAECggEABrjySvbHjT50dLYIqZQgUf9R4stfvwa/Yby3+mtMOh3U\nOZU3xAL3kmojY61fFT7IZym8AKq4womLdqw0kraK0WoJmfW4UMBYL9fUxosnjzw0\nX4tjL+iH5mCmbIRwsVCT05Thew9UVPhh4VCkrBY+amufnb6BsSIDKIcrQ/0MOf8O\nL13lPVTDT92TRfrx9m6uuSYfFPuocSJZyuDDCw0Xf6LGE5MZbm3l5mIYEqgQyFxK\ndxi2mKz54h660CoXzECcu19EuWy7srgBJ1Px40CNlDYC/EVqw+aql9BamJQwkdnM\nsuwXwJn1CAO5Huo1STcM/fFux+1fKQKBQoghVoBcYQKBgQD2kg9UZCJXpfjvdxuP\nm9C57Ubtqtal+mX1bBF6KtZVxTf0bBQwzPjWMrsGy1Dyx2ZBkk/oqpLLBPa5qCSr\nRVDnV2hUTdGnvQUT6I+lIPDd+5os9WLhe2yYybHSreBK7iPVU5ifKrIImwu0749z\nT8+OWB/6/nOh+8uUhpfgAJZ8iQKBgQDOkjiLPL+fy188DVB+naPXXuViGlrgITgn\nUEmina4giszpYOlGlutdx7qylPqnnXfCz6yjbEn/od2ZF/kmXvBQFHCpXb/6YnUW\ncG6JWVOujJCf9e259nGtDaoIyE2ySoVH6PAXh0GUewUpz0mHd2hfi3zpFnXBLvDy\nZPfrOq0NDQKBgCxyq/zEiERQkQ1p5TgAGKJLmauiTkthVhvlvUjOjBCuGqYfDYy2\nhmzmfDx/TjpVo6NSYsFIbmnWnTteii2tsyXg5de8p3ybYFz0YWCdDY6WmnZcTdTj\n0PHB+iJGYdZgE2mTRkH7Cljuyi91t+BLlNjOHgW69NFQeKRvltU0hewxAoGBAMug\nkgKXSKIhXOiai1200ZxtXBq/thM4S91dJKkbXFmR2Xq44FuIS82vJBgECa4O6M5t\n31VdWviWPBY87opnjeayr3gVBTixs5ACFsRn/LiUscAtMkFdcSNQ0+tCYGy/TvDa\n60mWOAxA1I8pWeciyw1cOC6gyEU9m6Cl7UnBFnNFAoGAeHkGjJOOjJ1ZBStMigmz\n6Juxg821duPEz8vq3tMJQ4jpoZM/SkL/hxkUthgew4dX4tjiY0+eUhRlxWWB8FtC\nK/0ml/gesqXmDxsVXTw2/ShQYilDZSAbw/iSoqJslkwOxJI8FdPDvfbQCvFY3EcU\nZpeG/P6tghizRNfqIo8RbTM=\n-----END PRIVATE KEY-----\n",
+  "client_email": "insight-lens@tribal-contact-406500.iam.gserviceaccount.com",
+  "client_id": "111252102300403782359",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/insight-lens%40tribal-contact-406500.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
