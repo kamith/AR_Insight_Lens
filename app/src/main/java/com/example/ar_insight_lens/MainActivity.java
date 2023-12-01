@@ -82,22 +82,29 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        /** NEW STUFF
-        // Apply the stored theme before setContentView
+
+        // Apply the selected theme
         SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
-        int themeId = prefs.getInt("themeId", R.style.RegularTheme_AR_Insight_Lens); // Default theme
-        setTheme(themeId);
+        String themeName = prefs.getString("SelectedTheme", "RegularTheme"); // Default to regular theme
+        switch (themeName) {
+            case "RegularTheme":
+                setTheme(R.style.RegularTheme_AR_Insight_Lens);
+                break;
+            case "BlackWhiteTheme":
+                setTheme(R.style.BlackAndWhiteTheme_AR_Insight_Lens);
+                break;
+            case "DeuteranopiaTheme":
+                setTheme(R.style.DeuteranopiaTheme_AR_Insight_Lens);
+                break;
+            case "ProtanopiaTheme":
+                setTheme(R.style.ProtanopiaTheme_AR_Insight_Lens);
+                break;
+            case "TritanopiaTheme":
+                setTheme(R.style.TritanopiaTheme_AR_Insight_Lens);
+                break;
+        }
 
-        setContentView(R.layout.activity_main);
 
-        // Setup buttons with onClick listeners to change the theme
-        setupThemeChangeButton(R.id.btn_1, R.style.RegularTheme_AR_Insight_Lens);
-        setupThemeChangeButton(R.id.btn_2, R.style.BlackAndWhiteTheme_AR_Insight_Lens);
-        setupThemeChangeButton(R.id.btn_3, R.style.DeuteranopiaTheme_AR_Insight_Lens);
-        setupThemeChangeButton(R.id.btn_4, R.style.ProtanopiaTheme_AR_Insight_Lens);
-        setupThemeChangeButton(R.id.btn_5, R.style.TritanopiaTheme_AR_Insight_Lens);
-
-        END OF NEW STUFF **/
         setContentView(R.layout.activity_main);
         buttonOpenAIApi = findViewById(R.id.btn_openai_api);
 

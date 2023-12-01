@@ -23,5 +23,10 @@
             </intent-filter>
         </activity>
 
+        <!-- Declaration of MainActivity -->
+        <activity android:name=".MainActivity"
+            android:exported="false"> <!-- exported set to false since it's not directly accessed outside the app -->
+        </activity>
+
     </application>
 </manifest>
