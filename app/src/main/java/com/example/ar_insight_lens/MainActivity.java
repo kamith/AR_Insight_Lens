@@ -1,44 +1,21 @@
 /*
-Copyright (c) 2017, Vuzix Corporation
-All rights reserved.
+    Project Insight Lens: Augmented Reality Optical Character Recognition Assistant for the Visually Impaired
 
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions
-are met:
-
-*  Redistributions of source code must retain the above copyright
-   notice, this list of conditions and the following disclaimer.
-
-*  Redistributions in binary form must reproduce the above copyright
-   notice, this list of conditions and the following disclaimer in the
-   documentation and/or other materials provided with the distribution.
-
-*  Neither the name of Vuzix Corporation nor the names of
-   its contributors may be used to endorse or promote products derived
-   from this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
-OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
-WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
-OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
-EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+    Copyrights:
+        Copyright (c) 2017, Vuzix Corporation
 */
 
 package com.example.ar_insight_lens;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.app.Activity;
+import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -47,16 +24,56 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
+
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.services.vision.v1.Vision;
+import com.google.api.services.vision.v1.VisionRequestInitializer;
+import com.google.api.services.vision.v1.model.AnnotateImageRequest;
+import com.google.api.services.vision.v1.model.AnnotateImageResponse;
+import com.google.api.services.vision.v1.model.BatchAnnotateImagesRequest;
+import com.google.api.services.vision.v1.model.BatchAnnotateImagesResponse;
+import com.google.api.services.vision.v1.model.EntityAnnotation;
+import com.google.api.services.vision.v1.model.Image;
+import com.google.api.services.vision.v1.model.Feature;
+import com.google.api.client.json.gson.GsonFactory;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.services.vision.v1.Vision;
+import com.google.api.services.vision.v1.VisionRequestInitializer;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+
 /**
  * Main activity for speech recognition sample
  */
 public class MainActivity extends Activity {
     public final String LOG_TAG = "VoiceSample";
     public final String CUSTOM_SDK_INTENT = "com.vuzix.sample.vuzix_voicecontrolwithsdk.CustomIntent";
-    Button buttonListen, buttonPopup, buttonClear, buttonRestore;
+    Button buttonOpenAIApi;
     EditText textEntryField;
     VoiceCmdReceiver mVoiceCmdReceiver;
     private boolean mRecognizerActive = false;
+
+    private final String OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
 
     /**
      * when created we setup the layout and the speech recognition
@@ -82,44 +99,10 @@ public class MainActivity extends Activity {
 
         END OF NEW STUFF **/
         setContentView(R.layout.activity_main);
-
-        buttonListen = (Button) findViewById(R.id.btn_listen);
-        buttonPopup = (Button) findViewById(R.id.btn_popup);
-        buttonClear = (Button) findViewById(R.id.btn_clear);
-        buttonRestore = (Button) findViewById(R.id.btn_restore);
-        textEntryField = (EditText) findViewById(R.id.edit_textBox);
+        buttonOpenAIApi = findViewById(R.id.btn_openai_api);
 
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
-
-        // It is a best practice to explicitly request focus to a button to make navigation with the
-        // Vuzix buttons/touchpad more consistent to the user
-        buttonListen.requestFocusFromTouch();
-
-        buttonListen.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                OnListenClick();
-            }
-        });
-        buttonPopup.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                OnPopupClick();
-            }
-        });
-        buttonClear.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                OnClearClick();
-            }
-        });
-        buttonRestore.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) throws IllegalArgumentException,
-                    SecurityException, IllegalStateException {
-                OnRestoreClick();
-            }
-        });
+        setupButtonListeners();
 
         // Create the voice command receiver class
         mVoiceCmdReceiver = new VoiceCmdReceiver(this);
@@ -129,6 +112,9 @@ public class MainActivity extends Activity {
         registerReceiver(myIntentReceiver , new IntentFilter(CUSTOM_SDK_INTENT));
     }
 
+    private void setupButtonListeners() {
+        buttonOpenAIApi.setOnClickListener(view -> OnOpenAIApiClick());
+    }
     /**
      * Sets up a button to change the application's theme.
      *
@@ -185,17 +171,82 @@ public class MainActivity extends Activity {
         myToast.show();
     }
 
-    /**
-     * Update the button from "Listen" to "Stop" based on our cached state
-     */
-    private void updateListenButtonText() {
-        int newText = R.string.btn_text_listen;
-        if ( mRecognizerActive ) {
-            newText = R.string.btn_text_stop;
-        }
-        buttonListen.setText(newText);
+    private void OnOpenAIApiClick() {
+        OkHttpClient client = new OkHttpClient();
+
+        MediaType mediaType = MediaType.parse("application/json");
+        String promptText = "Tell me a joke";
+
+        // Ensure that the messages array is correctly formatted
+        String jsonBody = "{\"model\": \"gpt-4-1106-preview\", \"messages\": [{\"role\": \"system\", \"content\": \"You are a helpful assistant.\"}, {\"role\": \"user\", \"content\": \"" + promptText.replace("\"", "\\\"") + "\"}]}";
+        RequestBody body = RequestBody.create(mediaType, jsonBody);
+
+        Request request = new Request.Builder()
+                .url(OPENAI_API_URL)
+                .post(body)
+                .addHeader("Content-Type", "application/json")
+                .addHeader("Authorization", "Bearer " + BuildConfig.OPENAI_API_KEY)                .build();
+
+        new Thread(() -> {
+            try {
+                Response response = client.newCall(request).execute();
+                String responseData = response.body().string();
+                Log.i(LOG_TAG, "Response: " + responseData);
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "Error: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }).start();
     }
 
+    private void detectTextFromImage(Bitmap bitmap) {
+        try {
+            HttpTransport httpTransport = new NetHttpTransport();
+            JsonFactory jsonFactory = new GsonFactory();
+
+            Vision.Builder builder = new Vision.Builder(httpTransport, jsonFactory, null);
+            builder.setVisionRequestInitializer(new VisionRequestInitializer("YOUR_API_KEY"));
+            Vision vision = builder.build();
+
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, outputStream);
+            byte[] byteArray = outputStream.toByteArray();
+
+            Image inputImage = new Image();
+            inputImage.encodeContent(byteArray);
+
+            Feature desiredFeature = new Feature();
+            desiredFeature.setType("TEXT_DETECTION");
+
+            AnnotateImageRequest request = new AnnotateImageRequest();
+            request.setImage(inputImage);
+            request.setFeatures(Arrays.asList(desiredFeature));
+
+            BatchAnnotateImagesRequest batchRequest = new BatchAnnotateImagesRequest();
+            batchRequest.setRequests(Arrays.asList(request));
+
+            Vision.Images.Annotate annotateRequest = vision.images().annotate(batchRequest);
+            annotateRequest.setDisableGZipContent(true);
+
+            BatchAnnotateImagesResponse response = annotateRequest.execute();
+
+            // Process the response
+            List<AnnotateImageResponse> responses = response.getResponses();
+            for (AnnotateImageResponse res : responses) {
+                if (res.getTextAnnotations() != null) {
+                    for (EntityAnnotation annotation : res.getTextAnnotations()) {
+                        Log.d("TextDetection", "Text: " + annotation.getDescription());
+                        // Handle the detected text as needed
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.d("TextDetection", "ERROR, DID NOT WORK");
+
+            // Handle the exception
+        }
+    }
     /**
      * Handler called when "Listen" button is clicked. Activates the speech recognizer identically to
      * saying "Hello Vuzix".  Also handles "Stop" button clicks to terminate the recognizer identically
@@ -211,7 +262,6 @@ public class MainActivity extends Activity {
         mRecognizerActive = !mRecognizerActive;
         // Manually calling this syncrhonizes our UI state to the recognizer state in case we're
         // requesting the current state, in which we won't be notified of a change.
-        updateListenButtonText();
         // Request the new state
         mVoiceCmdReceiver.TriggerRecognizerToListen(mRecognizerActive);
     }
@@ -262,7 +312,7 @@ public class MainActivity extends Activity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                updateListenButtonText();
+
             }
         });
     }

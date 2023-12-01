@@ -8,7 +8,7 @@
 
     <!-- First Button -->
     <Button
-        android:id="@+id/btn_1"
+        android:id="@+id/regular_theme"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Regular Theme"
@@ -18,37 +18,37 @@
 
     <!-- Second Button -->
     <Button
-        android:id="@+id/btn_2"
+        android:id="@+id/black_white_theme"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Black and White Theme"
-        app:layout_constraintTop_toBottomOf="@+id/btn_1"
+        app:layout_constraintTop_toBottomOf="@+id/regular_theme"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Third Button -->
     <Button
-        android:id="@+id/btn_3"
+        android:id="@+id/deuteranopia_theme"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Deuteranopia Theme"
-        app:layout_constraintTop_toBottomOf="@+id/btn_2"
+        app:layout_constraintTop_toBottomOf="@+id/black_white_theme"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Fourth Button -->
     <Button
-        android:id="@+id/btn_4"
+        android:id="@+id/protanopia_theme"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Protanopia Theme"
-        app:layout_constraintTop_toBottomOf="@+id/btn_3"
+        app:layout_constraintTop_toBottomOf="@+id/deuteranopia_theme"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Fifth Button -->
     <Button
-        android:id="@+id/btn_5"
+        android:id="@+id/tritanopia_theme"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Tritanopia Theme"
@@ -56,7 +56,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.503"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_4"
+        app:layout_constraintTop_toBottomOf="@+id/protanopia_theme"
         app:layout_constraintVertical_bias="0.0" />
 
     <!-- Horizontal Guideline for Button Alignment -->
@@ -69,4 +69,3 @@
     <!-- Adjust the guide percent as needed -->
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-

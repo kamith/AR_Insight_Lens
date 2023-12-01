@@ -12,8 +12,12 @@ android {
         targetSdk 33
         versionCode 1
         versionName "1.0"
-
+        buildConfigField "String", "OPENAI_API_KEY", OpenAI_ApiKey
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildFeatures {
+        buildConfig true
     }
 
     buildTypes {
@@ -26,16 +30,45 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
+    packagingOptions {
+        // Pick the first occurrence of any of these files to include in the APK
+        pickFirst 'META-INF/INDEX.LIST'
+        pickFirst 'META-INF/DEPENDENCIES'
+        // Alternatively, you can use 'exclude' to completely exclude these files
+        // exclude 'META-INF/INDEX.LIST'
+        // exclude 'META-INF/DEPENDENCIES'
+    }
 }
 
 dependencies {
+
+    implementation 'com.squareup.okhttp3:okhttp:4.9.0'
+    implementation 'com.google.cloud:google-cloud-vision:3.28.0' // Use the latest version
+    implementation 'com.google.api-client:google-api-client-android:1.31.5' // or latest version
+    implementation 'com.google.apis:google-api-services-vision:v1-rev20230908-2.0.0'
+    implementation 'com.google.api-client:google-api-client:1.31.5'
+    implementation 'com.google.api-client:google-api-client-android:1.31.5'
+    implementation 'com.google.http-client:google-http-client-gson:1.40.1'
+    implementation 'com.google.code.gson:gson:2.8.9' // or latest version
+    implementation 'com.google.api-client:google-api-client-gson:1.31.5' // or latest version
+
+
+    // or latest version
+
+
     implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.cloud:google-cloud-texttospeech:2.31.0'
     implementation 'com.google.android.material:material:1.8.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel:2.4.0'
+    implementation 'androidx.lifecycle:lifecycle-livedata:2.4.0'
+    implementation 'androidx.lifecycle:lifecycle-runtime:2.4.0'
+    implementation 'androidx.lifecycle:lifecycle-common-java8:2.4.0'
+
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
-    // Replace the legacy support library with AndroidX ConstraintLayout
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 
     implementation 'com.vuzix:sdk-speechrecognitionservice:1.91'
