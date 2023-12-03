@@ -10,6 +10,8 @@ import android.content.Intent;
 public class SetupPage extends Activity {
 
     Button b_Regular, b_BlackWhite, b_Deuteranopia, b_Protanopia, b_Tritanopia;
+    private SharedPreferences.Editor editor;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,7 +69,7 @@ public class SetupPage extends Activity {
     }
 
     private void regularThemeChange() {
-        SharedPreferences.Editor editor = getSharedPreferences("AppPrefs", MODE_PRIVATE).edit();
+        editor = getSharedPreferences("AppPrefs", MODE_PRIVATE).edit();
         editor.putString("SelectedTheme", "RegularTheme");
         editor.apply();
 
@@ -76,7 +78,7 @@ public class SetupPage extends Activity {
     }
 
     private void blackWhiteThemeChange() {
-        SharedPreferences.Editor editor = getSharedPreferences("AppPrefs", MODE_PRIVATE).edit();
+        editor = getSharedPreferences("AppPrefs", MODE_PRIVATE).edit();
         editor.putString("SelectedTheme", "BlackWhiteTheme");
         editor.apply();
 
@@ -85,7 +87,7 @@ public class SetupPage extends Activity {
     }
 
     private void deuteranopiaThemeChange() {
-        SharedPreferences.Editor editor = getSharedPreferences("AppPrefs", MODE_PRIVATE).edit();
+        editor = getSharedPreferences("AppPrefs", MODE_PRIVATE).edit();
         editor.putString("SelectedTheme", "DeuteranopiaTheme");
         editor.apply();
 
@@ -94,7 +96,7 @@ public class SetupPage extends Activity {
     }
 
     private void protanopiaThemeChange() {
-        SharedPreferences.Editor editor = getSharedPreferences("AppPrefs", MODE_PRIVATE).edit();
+        editor = getSharedPreferences("AppPrefs", MODE_PRIVATE).edit();
         editor.putString("SelectedTheme", "ProtanopiaTheme");
         editor.apply();
 
@@ -103,7 +105,7 @@ public class SetupPage extends Activity {
     }
 
     private void tritanopiaThemeChange() {
-        SharedPreferences.Editor editor = getSharedPreferences("AppPrefs", MODE_PRIVATE).edit();
+        editor = getSharedPreferences("AppPrefs", MODE_PRIVATE).edit();
         editor.putString("SelectedTheme", "TritanopiaTheme");
         editor.apply();
 
