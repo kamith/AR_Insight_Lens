@@ -18,13 +18,54 @@
         android:layout_marginTop="32dp" />
 
     <Button
-        android:id="@+id/buttonStart"
+        android:id="@+id/buttonRegular"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Get Started"
+        android:text="Regular Theme"
         app:layout_constraintTop_toBottomOf="@id/textViewWelcome"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         android:layout_marginTop="16dp" />
+
+    <Button
+        android:id="@+id/buttonBlackWhite"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="BlackWhite Theme"
+        app:layout_constraintTop_toBottomOf="@id/buttonRegular"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginTop="16dp" />
+
+    <Button
+        android:id="@+id/buttonDeuteranopia"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Deuteranopia Theme"
+        app:layout_constraintTop_toBottomOf="@id/buttonBlackWhite"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginTop="16dp" />
+
+    <Button
+        android:id="@+id/buttonProtanopia"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Protanopia Theme"
+        app:layout_constraintTop_toBottomOf="@id/buttonDeuteranopia"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginTop="16dp" />
+
+    <Button
+        android:id="@+id/buttonTritanopia"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tritanopia Theme"
+        app:layout_constraintTop_toBottomOf="@id/buttonProtanopia"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginTop="16dp" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

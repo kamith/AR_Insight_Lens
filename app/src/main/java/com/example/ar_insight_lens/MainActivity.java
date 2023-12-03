@@ -1,8 +1,10 @@
 /*
     Project Insight Lens: Augmented Reality Optical Character Recognition Assistant for the Visually Impaired
 
+    By: Kamith Mirissage, Alain, Connor
     Copyrights:
         Copyright (c) 2017, Vuzix Corporation
+
 */
 
 package com.example.ar_insight_lens;
@@ -13,6 +15,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
@@ -62,6 +65,11 @@ import com.google.api.services.vision.v1.VisionRequestInitializer;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
+import android.util.Base64;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+
 /**
  * Main activity for speech recognition sample
  */
@@ -73,6 +81,8 @@ public class MainActivity extends Activity {
     VoiceCmdReceiver mVoiceCmdReceiver;
     private boolean mRecognizerActive = false;
 
+    private String encoddedImage;
+
     private final String OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
 
     /**
@@ -82,24 +92,32 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        /** NEW STUFF
-        // Apply the stored theme before setContentView
+
+        // Apply the selected theme
         SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
-        int themeId = prefs.getInt("themeId", R.style.RegularTheme_AR_Insight_Lens); // Default theme
-        setTheme(themeId);
+        String themeName = prefs.getString("SelectedTheme", "RegularTheme"); // Default to regular theme
+        switch (themeName) {
+            case "RegularTheme":
+                setTheme(R.style.RegularTheme_AR_Insight_Lens);
+                break;
+            case "BlackWhiteTheme":
+                setTheme(R.style.BlackAndWhiteTheme_AR_Insight_Lens);
+                break;
+            case "DeuteranopiaTheme":
+                setTheme(R.style.DeuteranopiaTheme_AR_Insight_Lens);
+                break;
+            case "ProtanopiaTheme":
+                setTheme(R.style.ProtanopiaTheme_AR_Insight_Lens);
+                break;
+            case "TritanopiaTheme":
+                setTheme(R.style.TritanopiaTheme_AR_Insight_Lens);
+                break;
+        }
 
-        setContentView(R.layout.activity_main);
-
-        // Setup buttons with onClick listeners to change the theme
-        setupThemeChangeButton(R.id.btn_1, R.style.RegularTheme_AR_Insight_Lens);
-        setupThemeChangeButton(R.id.btn_2, R.style.BlackAndWhiteTheme_AR_Insight_Lens);
-        setupThemeChangeButton(R.id.btn_3, R.style.DeuteranopiaTheme_AR_Insight_Lens);
-        setupThemeChangeButton(R.id.btn_4, R.style.ProtanopiaTheme_AR_Insight_Lens);
-        setupThemeChangeButton(R.id.btn_5, R.style.TritanopiaTheme_AR_Insight_Lens);
-
-        END OF NEW STUFF **/
         setContentView(R.layout.activity_main);
         buttonOpenAIApi = findViewById(R.id.btn_openai_api);
+
+        encoddedImage = encodeImageToBase64("raw/menu.png");
 
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
         setupButtonListeners();
@@ -110,6 +128,20 @@ public class MainActivity extends Activity {
         // Now register another intent handler to demonstrate intents sent from the service
         myIntentReceiver = new MyIntentReceiver();
         registerReceiver(myIntentReceiver , new IntentFilter(CUSTOM_SDK_INTENT));
+    }
+
+
+    private String encodeImageToBase64(String imagePath) {
+        File file = new File(imagePath);
+        try (FileInputStream imageInFile = new FileInputStream(file)) {
+            // Reading a file from file system
+            byte imageData[] = new byte[(int) file.length()];
+            imageInFile.read(imageData);
+            return Base64.encodeToString(imageData, Base64.DEFAULT);
+        } catch (IOException e) {
+            Log.e(LOG_TAG, "Error in reading the image file", e);
+            return "";
+        }
     }
 
     private void setupButtonListeners() {
@@ -199,54 +231,53 @@ public class MainActivity extends Activity {
         }).start();
     }
 
-    private void detectTextFromImage(Bitmap bitmap) {
-        try {
-            HttpTransport httpTransport = new NetHttpTransport();
-            JsonFactory jsonFactory = new GsonFactory();
+//    private void OnOpenAIApiClick(String base64Image) {
+//        OkHttpClient client = new OkHttpClient();
+//        MediaType mediaType = MediaType.parse("application/json");
+//
+//        String jsonBody = "{"
+//                + "\"model\": \"gpt-4-vision-preview\","
+//                + "\"messages\": ["
+//                + "    {"
+//                + "        \"role\": \"user\","
+//                + "        \"content\": ["
+//                + "            {"
+//                + "                \"type\": \"text\","
+//                + "                \"text\": \"Summarize the image in 2 sentences\""
+//                + "            },"
+//                + "            {"
+//                + "                \"type\": \"image_url\","
+//                + "                \"image_url\": {"
+//                + "                    \"url\": \"data:image/png;base64," + base64Image + "\""
+//                + "                }"
+//                + "            }"
+//                + "        ]"
+//                + "    }"
+//                + "]"
+//                + "}";
+//
+//        RequestBody body = RequestBody.create(mediaType, jsonBody);
+//
+//        Request request = new Request.Builder()
+//                .url(OPENAI_API_URL)
+//                .post(body)
+//                .addHeader("Content-Type", "application/json")
+//                .addHeader("Authorization", "Bearer " + BuildConfig.OPENAI_API_KEY)
+//                .build();
+//
+//        new Thread(() -> {
+//            try {
+//                Response response = client.newCall(request).execute();
+//                String responseData = response.body().string();
+//                Log.i(LOG_TAG, "Response: " + responseData);
+//            } catch (Exception e) {
+//                Log.e(LOG_TAG, "Error: " + e.getMessage());
+//                e.printStackTrace();
+//            }
+//        }).start();
+//    }
 
-            Vision.Builder builder = new Vision.Builder(httpTransport, jsonFactory, null);
-            builder.setVisionRequestInitializer(new VisionRequestInitializer("YOUR_API_KEY"));
-            Vision vision = builder.build();
 
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, outputStream);
-            byte[] byteArray = outputStream.toByteArray();
-
-            Image inputImage = new Image();
-            inputImage.encodeContent(byteArray);
-
-            Feature desiredFeature = new Feature();
-            desiredFeature.setType("TEXT_DETECTION");
-
-            AnnotateImageRequest request = new AnnotateImageRequest();
-            request.setImage(inputImage);
-            request.setFeatures(Arrays.asList(desiredFeature));
-
-            BatchAnnotateImagesRequest batchRequest = new BatchAnnotateImagesRequest();
-            batchRequest.setRequests(Arrays.asList(request));
-
-            Vision.Images.Annotate annotateRequest = vision.images().annotate(batchRequest);
-            annotateRequest.setDisableGZipContent(true);
-
-            BatchAnnotateImagesResponse response = annotateRequest.execute();
-
-            // Process the response
-            List<AnnotateImageResponse> responses = response.getResponses();
-            for (AnnotateImageResponse res : responses) {
-                if (res.getTextAnnotations() != null) {
-                    for (EntityAnnotation annotation : res.getTextAnnotations()) {
-                        Log.d("TextDetection", "Text: " + annotation.getDescription());
-                        // Handle the detected text as needed
-                    }
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            Log.d("TextDetection", "ERROR, DID NOT WORK");
-
-            // Handle the exception
-        }
-    }
     /**
      * Handler called when "Listen" button is clicked. Activates the speech recognizer identically to
      * saying "Hello Vuzix".  Also handles "Stop" button clicks to terminate the recognizer identically
