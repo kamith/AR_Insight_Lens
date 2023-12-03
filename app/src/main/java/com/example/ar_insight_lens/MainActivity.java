@@ -9,6 +9,9 @@
 
 package com.example.ar_insight_lens;
 
+import android.animation.AnimatorInflater;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -18,6 +21,7 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Handler;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.View;
@@ -25,7 +29,10 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
+import android.animation.AnimatorInflater;
+
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.http.HttpTransport;
@@ -66,6 +73,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 import android.util.Base64;
+
+import androidx.core.content.ContextCompat;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -82,6 +92,12 @@ public class MainActivity extends Activity {
     private boolean mRecognizerActive = false;
 
     private String encoddedImage;
+
+    private ProgressBar progressBar;
+    private ObjectAnimator progressAnimator;
+
+    private Handler handler = new Handler();
+    private int currentProgress = 0;
 
     private final String OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
 
@@ -115,7 +131,34 @@ public class MainActivity extends Activity {
         }
 
         setContentView(R.layout.activity_main);
+
+        // Hide progress bar
+        progressBar = findViewById(R.id.progressBar);
+        //progressBar.setVisibility(View.GONE);
+        progressBar.setVisibility(View.VISIBLE);
+        setProgressBarColor(themeName);
+
+        AnimatorSet progressAnimatorSet = (AnimatorSet) AnimatorInflater.loadAnimator(this, R.animator.progress_animation);
+        progressAnimatorSet.setTarget(progressBar);
+        progressAnimatorSet.start();
+
+
         buttonOpenAIApi = findViewById(R.id.btn_openai_api);
+
+        Runnable progressRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (currentProgress < 100) {
+                    currentProgress += 10;
+                    progressBar.setProgress(currentProgress);
+                    handler.postDelayed(this, 1000); // Repeat every 1 seconds
+                }
+            }
+        };
+
+        handler.post(progressRunnable); // Start the repeating task
+        setProgressBarEndColor(themeName);
+
 
         encoddedImage = encodeImageToBase64("raw/menu.png");
 
@@ -130,6 +173,59 @@ public class MainActivity extends Activity {
         registerReceiver(myIntentReceiver , new IntentFilter(CUSTOM_SDK_INTENT));
     }
 
+    private void setProgressBarColor(String cur) {
+        int color = 0;
+
+        String themeName = cur;
+        switch (themeName) {
+            case "RegularTheme":
+                color = ContextCompat.getColor(this, R.color.workingRegularColor);
+                break;
+            case "BlackWhiteTheme":
+                color = ContextCompat.getColor(this, R.color.black);
+                break;
+            case "DeuteranopiaTheme":
+                color = ContextCompat.getColor(this, R.color.workingDeuteranopiaColor1);
+                break;
+            case "ProtanopiaTheme":
+                color = ContextCompat.getColor(this, R.color.workingProtanopiaColor);
+                break;
+            case "TritanopiaTheme":
+                color = ContextCompat.getColor(this, R.color.workingTritanopiaColor);
+                break;
+        }
+
+        // Set the color to the progress bar
+        progressBar.getProgressDrawable().setColorFilter(
+                color, android.graphics.PorterDuff.Mode.SRC_IN);
+    }
+
+    private void setProgressBarEndColor(String cur) {
+        int color = 0;
+
+        String themeName = cur;
+        switch (themeName) {
+            case "RegularTheme":
+                color = ContextCompat.getColor(this, R.color.completedRegularColor);
+                break;
+            case "BlackWhiteTheme":
+                color = ContextCompat.getColor(this, R.color.white);
+                break;
+            case "DeuteranopiaTheme":
+                color = ContextCompat.getColor(this, R.color.completedDeuteranopiaColor);
+                break;
+            case "ProtanopiaTheme":
+                color = ContextCompat.getColor(this, R.color.completedProtanopiaColor);
+                break;
+            case "TritanopiaTheme":
+                color = ContextCompat.getColor(this, R.color.completedTritanopiaColor);
+                break;
+        }
+
+        // Set the color to the progress bar
+        progressBar.getProgressDrawable().setColorFilter(
+                color, android.graphics.PorterDuff.Mode.SRC_IN);
+    }
 
     private String encodeImageToBase64(String imagePath) {
         File file = new File(imagePath);
@@ -223,12 +319,20 @@ public class MainActivity extends Activity {
             try {
                 Response response = client.newCall(request).execute();
                 String responseData = response.body().string();
+
+                // Show progress bar
+                progressBar.setVisibility(View.VISIBLE);
+
                 Log.i(LOG_TAG, "Response: " + responseData);
             } catch (Exception e) {
                 Log.e(LOG_TAG, "Error: " + e.getMessage());
                 e.printStackTrace();
             }
         }).start();
+
+        // Hide progress bar
+        progressBar.setVisibility(View.GONE);
+        currentProgress = 0;
     }
 
 //    private void OnOpenAIApiClick(String base64Image) {
@@ -360,4 +464,5 @@ public class MainActivity extends Activity {
             Toast.makeText(context, "Custom Intent Detected", Toast.LENGTH_LONG).show();
         }
     }
+
 }
