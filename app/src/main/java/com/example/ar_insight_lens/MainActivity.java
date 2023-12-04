@@ -138,15 +138,9 @@ public class MainActivity extends Activity {
         }
 
         setContentView(R.layout.activity_main);
-        /**
-        // Hide progress bar
-        progressBar = findViewById(R.id.ProgressBar);
-        //progressBar.setVisibility(View.GONE);
-        progressBar.setVisibility(View.VISIBLE);
-        setProgressBarColor(themeName);
-        **/
-        final ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar); // initiate the progress bar
-        //progressBar.setVisibility(View.GONE);
+
+        progressBar = (ProgressBar) findViewById(R.id.progressBar); // initiate the progress bar
+        progressBar.setVisibility(View.GONE);
         setProgressBarColor(themeName);
 
         //doProgressBarAnimation(themeName);
@@ -166,6 +160,8 @@ public class MainActivity extends Activity {
         // Now register another intent handler to demonstrate intents sent from the service
         myIntentReceiver = new MyIntentReceiver();
         registerReceiver(myIntentReceiver , new IntentFilter(CUSTOM_SDK_INTENT));
+        Log.d("Progress Bar", String.valueOf(progressBar));
+
     }
 
     private void doProgressBarAnimation(String curTheme) {
@@ -201,19 +197,19 @@ public class MainActivity extends Activity {
         String theme = cur;
         switch (theme) {
             case "RegularTheme":
-                color = ContextCompat.getColor(this, R.color.workingRegularColor);
+                color = ContextCompat.getColor(this, R.color.completedRegularColor);
                 break;
             case "BlackWhiteTheme":
-                color = ContextCompat.getColor(this, R.color.black);
+                color = ContextCompat.getColor(this, R.color.gray);
                 break;
             case "DeuteranopiaTheme":
-                color = ContextCompat.getColor(this, R.color.workingDeuteranopiaColor1);
+                color = ContextCompat.getColor(this, R.color.completedDeuteranopiaColor);
                 break;
             case "ProtanopiaTheme":
-                color = ContextCompat.getColor(this, R.color.workingProtanopiaColor);
+                color = ContextCompat.getColor(this, R.color.completedProtanopiaColor);
                 break;
             case "TritanopiaTheme":
-                color = ContextCompat.getColor(this, R.color.workingTritanopiaColor);
+                color = ContextCompat.getColor(this, R.color.completedTritanopiaColor);
                 break;
         }
 
@@ -233,7 +229,7 @@ public class MainActivity extends Activity {
                 color = ContextCompat.getColor(this, R.color.completedRegularColor);
                 break;
             case "BlackWhiteTheme":
-                color = ContextCompat.getColor(this, R.color.white);
+                color = ContextCompat.getColor(this, R.color.black);
                 break;
             case "DeuteranopiaTheme":
                 color = ContextCompat.getColor(this, R.color.completedDeuteranopiaColor);
@@ -317,16 +313,22 @@ public class MainActivity extends Activity {
                 .post(body)
                 .addHeader("Content-Type", "application/json")
                 .addHeader("Authorization", "Bearer " + BuildConfig.OPENAI_API_KEY)                .build();
+        Log.d("Progress Bar", String.valueOf(progressBar));
 
         new Thread(() -> {
             try {
+                // make progress bar visible
+                runOnUiThread(() -> progressBar.setIndeterminate(true));
+                runOnUiThread(() -> progressBar.setVisibility(View.VISIBLE));
+                Log.d("Progress Bar","Setting Progress Bar Visible");
+
                 Response response = client.newCall(request).execute();
                 String responseData = response.body().string();
 
-                // Show progress bar
-                progressBar.setVisibility(View.VISIBLE);
-                // call a function that animates the progress bar
-                doProgressBarAnimation(themeName);
+                //runOnUiThread(() -> progressBar.setVisibility(View.GONE));
+                runOnUiThread(() -> progressBar.setIndeterminate(false));
+
+                Log.d("Progress Bar","Setting Progress Bar Off");
 
                 Log.i(LOG_TAG, "Response: " + responseData);
             } catch (Exception e) {
