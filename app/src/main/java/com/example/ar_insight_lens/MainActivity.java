@@ -17,7 +17,10 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.View;
@@ -33,7 +36,9 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -66,6 +71,16 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 import android.util.Base64;
+
+import androidx.core.content.FileProvider;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -80,8 +95,12 @@ public class MainActivity extends Activity {
     EditText textEntryField;
     VoiceCmdReceiver mVoiceCmdReceiver;
     private boolean mRecognizerActive = false;
-
+    static final int REQUEST_IMAGE_CAPTURE = 1;
     private String encoddedImage;
+    private File photoFile;
+
+    private String capturedImagePath = null;
+    private Bitmap capturedImageBitmap = null;
 
     private final String OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
 
@@ -116,8 +135,6 @@ public class MainActivity extends Activity {
 
         setContentView(R.layout.activity_main);
         buttonOpenAIApi = findViewById(R.id.btn_openai_api);
-
-        encoddedImage = encodeImageToBase64("raw/menu.png");
 
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
         setupButtonListeners();
@@ -203,80 +220,144 @@ public class MainActivity extends Activity {
         myToast.show();
     }
 
+
     private void OnOpenAIApiClick() {
-        OkHttpClient client = new OkHttpClient();
+        if (capturedImageBitmap == null) {
+            new Thread(() -> {
+                try {
+                    Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+                        startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+                    }
+                    Log.d("Image", "IMAGE CAPTURED GOOD");
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, "Error: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }).start();
+        } else {
+            String latestImagePath = null;
+            File cameraDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), "Camera");
+            if (cameraDir.exists() && cameraDir.isDirectory()) {
+                File[] files = cameraDir.listFiles();
+                if (files != null && files.length > 0) {
+                    Arrays.sort(files, (f1, f2) -> Long.compare(f2.lastModified(), f1.lastModified())); // Sort in descending order
+                    File latestImage = files[0];
 
-        MediaType mediaType = MediaType.parse("application/json");
-        String promptText = "Tell me a joke";
+                    latestImagePath = latestImage.getAbsolutePath();
+                    Log.d(LOG_TAG, "Latest image path: " + latestImagePath);
 
-        // Ensure that the messages array is correctly formatted
-        String jsonBody = "{\"model\": \"gpt-4-1106-preview\", \"messages\": [{\"role\": \"system\", \"content\": \"You are a helpful assistant.\"}, {\"role\": \"user\", \"content\": \"" + promptText.replace("\"", "\\\"") + "\"}]}";
-        RequestBody body = RequestBody.create(mediaType, jsonBody);
-
-        Request request = new Request.Builder()
-                .url(OPENAI_API_URL)
-                .post(body)
-                .addHeader("Content-Type", "application/json")
-                .addHeader("Authorization", "Bearer " + BuildConfig.OPENAI_API_KEY)                .build();
-
-        new Thread(() -> {
-            try {
-                Response response = client.newCall(request).execute();
-                String responseData = response.body().string();
-                Log.i(LOG_TAG, "Response: " + responseData);
-            } catch (Exception e) {
-                Log.e(LOG_TAG, "Error: " + e.getMessage());
-                e.printStackTrace();
+                    // You can then use this path as needed
+                } else {
+                    Log.d(LOG_TAG, "No files found in the directory");
+                }
+            } else {
+                Log.d(LOG_TAG, "Camera directory does not exist");
             }
-        }).start();
+
+
+            OkHttpClient client = new OkHttpClient();
+            MediaType mediaType = MediaType.parse("applicati    on/json");
+
+            String base64Image = encodeImage(latestImagePath);
+            base64Image = base64Image.replace("\"", "\\\"");
+
+            String jsonBody = "{\"model\": \"gpt-4-vision-preview\","
+                    + "\"messages\": ["
+                    + "    {"
+                    + "        \"role\": \"user\","
+                    + "        \"content\": ["
+                    + "            {"
+                    + "                \"type\": \"text\","
+                    + "                \"text\": \"Tell me whats in the image\""
+                    + "            },"
+                    + "            {"
+                    + "                \"type\": \"image_url\","
+                    + "                \"image_url\": {"
+                    + "                    \"url\": \"data:image/jpeg;base64," + base64Image + "\"" + "                }" + "            }"
+                    + "        ]"
+                    + "    }"
+                    + "],"
+                    + "\"max_tokens\": 300"
+                    + "}";
+
+            try {
+                new JSONObject(jsonBody);
+                Log.d("JSON CHECK", "Correct");
+            } catch (JSONException ex) {
+                ex.printStackTrace();
+                Log.d("JSON CHECK", "Invalid");
+            }
+            RequestBody body = RequestBody.Companion.create(jsonBody, mediaType);
+
+            Request request = new Request.Builder()
+                    .url(OPENAI_API_URL)
+                    .post(body)
+                    .addHeader("Content-Type", "application/json")
+                    .addHeader("Authorization", "Bearer " + BuildConfig.OPENAI_API_KEY)
+                    .build();
+
+            new Thread(() -> {
+                try {
+                    Response response = client.newCall(request).execute();
+                    String responseData = response.body().string();
+
+                    JSONObject jsonResponse = new JSONObject(responseData);
+                    JSONArray choicesArray = jsonResponse.getJSONArray("choices");
+                    if (choicesArray.length() > 0) {
+                        JSONObject firstChoice = choicesArray.getJSONObject(0);
+                        JSONObject messageObject = firstChoice.getJSONObject("message");
+                        String content = messageObject.getString("content");
+
+                        Log.i(LOG_TAG, "Extracted Content: " + content);
+                    } else {
+                        Log.i(LOG_TAG, "No content found in response");
+                    }
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, "Error: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }).start();
+        }
     }
 
-//    private void OnOpenAIApiClick(String base64Image) {
-//        OkHttpClient client = new OkHttpClient();
-//        MediaType mediaType = MediaType.parse("application/json");
-//
-//        String jsonBody = "{"
-//                + "\"model\": \"gpt-4-vision-preview\","
-//                + "\"messages\": ["
-//                + "    {"
-//                + "        \"role\": \"user\","
-//                + "        \"content\": ["
-//                + "            {"
-//                + "                \"type\": \"text\","
-//                + "                \"text\": \"Summarize the image in 2 sentences\""
-//                + "            },"
-//                + "            {"
-//                + "                \"type\": \"image_url\","
-//                + "                \"image_url\": {"
-//                + "                    \"url\": \"data:image/png;base64," + base64Image + "\""
-//                + "                }"
-//                + "            }"
-//                + "        ]"
-//                + "    }"
-//                + "]"
-//                + "}";
-//
-//        RequestBody body = RequestBody.create(mediaType, jsonBody);
-//
-//        Request request = new Request.Builder()
-//                .url(OPENAI_API_URL)
-//                .post(body)
-//                .addHeader("Content-Type", "application/json")
-//                .addHeader("Authorization", "Bearer " + BuildConfig.OPENAI_API_KEY)
-//                .build();
-//
-//        new Thread(() -> {
-//            try {
-//                Response response = client.newCall(request).execute();
-//                String responseData = response.body().string();
-//                Log.i(LOG_TAG, "Response: " + responseData);
-//            } catch (Exception e) {
-//                Log.e(LOG_TAG, "Error: " + e.getMessage());
-//                e.printStackTrace();
-//            }
-//        }).start();
-//    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            Bundle extras = data.getExtras();
+            capturedImageBitmap = (Bitmap) extras.get("data");
 
+            // Log the bitmap details and save it globally
+            if (capturedImageBitmap != null) {
+                Log.d(LOG_TAG, "Bitmap details - Width: " + capturedImageBitmap.getWidth() + ", Height: " + capturedImageBitmap.getHeight());
+                Log.d("Test", capturedImageBitmap.toString());
+            } else {
+                Log.d(LOG_TAG, "Failed to receive bitmap from camera");
+            }
+        }
+    }
+
+    private String encodeImage(String imagePath) {
+        if (imagePath == null || imagePath.isEmpty()) {
+            Log.e(LOG_TAG, "Image path is null or empty");
+            return null;
+        }
+
+        File imageFile = new File(imagePath);
+        if (imageFile.exists()) {
+            try (InputStream inputStream = new FileInputStream(imageFile)) {
+                byte[] bytes = new byte[(int)imageFile.length()];
+                inputStream.read(bytes);
+                return Base64.encodeToString(bytes, Base64.NO_WRAP);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            Log.e(LOG_TAG, "Image file does not exist");
+        }
+        return null;
+    }
 
     /**
      * Handler called when "Listen" button is clicked. Activates the speech recognizer identically to
