@@ -34,16 +34,24 @@
         app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Add ProgressBar -->
+    <!--custom progress drawable for progress mode-->
+
 
     <ProgressBar
         android:id="@+id/progressBar"
-        style="@android:style/Widget.ProgressBar.Horizontal"
-        android:layout_width="269dp"
-        android:layout_height="21dp"
-        android:layout_marginTop="12dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btn_openai_api" />
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:indeterminate="false"
+        android:layout_width="312dp"
+        android:layout_height="20dp"
+        android:layout_marginTop="40dp"
+        android:max="100"
+        android:progress="50"
+        android:progressDrawable="@drawable/custom_progress"
+        android:background="@color/black"
+        app:layout_constraintHorizontal_bias="0.494"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btn_openai_api"/>
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline"

@@ -20,8 +20,12 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BlendMode;
+import android.graphics.BlendModeColorFilter;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.View;
@@ -96,9 +100,12 @@ public class MainActivity extends Activity {
     private ProgressBar progressBar;
     private ObjectAnimator progressAnimator;
 
-    private Handler handler = new Handler();
+    //private Handler handler = new Handler();
+    private Handler handler = new Handler(Looper.getMainLooper());
+
     private int currentProgress = 0;
 
+    private String themeName = "";
     private final String OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
 
     /**
@@ -111,7 +118,7 @@ public class MainActivity extends Activity {
 
         // Apply the selected theme
         SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
-        String themeName = prefs.getString("SelectedTheme", "RegularTheme"); // Default to regular theme
+        themeName = prefs.getString("SelectedTheme", "RegularTheme"); // Default to regular theme
         switch (themeName) {
             case "RegularTheme":
                 setTheme(R.style.RegularTheme_AR_Insight_Lens);
@@ -131,33 +138,21 @@ public class MainActivity extends Activity {
         }
 
         setContentView(R.layout.activity_main);
-
+        /**
         // Hide progress bar
-        progressBar = findViewById(R.id.progressBar);
+        progressBar = findViewById(R.id.ProgressBar);
         //progressBar.setVisibility(View.GONE);
         progressBar.setVisibility(View.VISIBLE);
         setProgressBarColor(themeName);
+        **/
+        final ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar); // initiate the progress bar
+        //progressBar.setVisibility(View.GONE);
+        setProgressBarColor(themeName);
 
-        AnimatorSet progressAnimatorSet = (AnimatorSet) AnimatorInflater.loadAnimator(this, R.animator.progress_animation);
-        progressAnimatorSet.setTarget(progressBar);
-        progressAnimatorSet.start();
+        //doProgressBarAnimation(themeName);
 
 
         buttonOpenAIApi = findViewById(R.id.btn_openai_api);
-
-        Runnable progressRunnable = new Runnable() {
-            @Override
-            public void run() {
-                if (currentProgress < 100) {
-                    currentProgress += 10;
-                    progressBar.setProgress(currentProgress);
-                    handler.postDelayed(this, 1000); // Repeat every 1 seconds
-                }
-            }
-        };
-
-        handler.post(progressRunnable); // Start the repeating task
-        setProgressBarEndColor(themeName);
 
 
         encoddedImage = encodeImageToBase64("raw/menu.png");
@@ -173,11 +168,38 @@ public class MainActivity extends Activity {
         registerReceiver(myIntentReceiver , new IntentFilter(CUSTOM_SDK_INTENT));
     }
 
+    private void doProgressBarAnimation(String curTheme) {
+        progressBar.setVisibility(View.VISIBLE);
+        progressBar.setMax(100); // 100 maximum value for the progress value
+        progressBar.setProgress(0); // Initialize progress
+
+        // Create a Runnable to increment the progress bar
+        handler = new Handler(Looper.getMainLooper());
+        final Runnable progressRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (currentProgress < 100) {
+                    currentProgress += 20; // Increment progress by 20%
+                    progressBar.setProgress(currentProgress); // Set current progress
+                    handler.postDelayed(this, 1000); // Schedule the next increment in 1 second
+                } else {
+                    handler.removeCallbacks(this); // Remove callbacks when progress reaches 100%
+                    // Optionally do something when the progress completes
+                    setProgressBarEndColor(curTheme);
+                    handler.postDelayed(this, 2500);
+                    progressBar.setVisibility(View.GONE);
+                }
+            }
+        };
+
+        handler.post(progressRunnable); // Start the progress update
+    }
+
     private void setProgressBarColor(String cur) {
         int color = 0;
 
-        String themeName = cur;
-        switch (themeName) {
+        String theme = cur;
+        switch (theme) {
             case "RegularTheme":
                 color = ContextCompat.getColor(this, R.color.workingRegularColor);
                 break;
@@ -196,15 +218,17 @@ public class MainActivity extends Activity {
         }
 
         // Set the color to the progress bar
-        progressBar.getProgressDrawable().setColorFilter(
-                color, android.graphics.PorterDuff.Mode.SRC_IN);
+        if (progressBar != null) {
+            progressBar.getProgressDrawable().setColorFilter(
+                    color, android.graphics.PorterDuff.Mode.SRC_IN);
+        }
     }
 
     private void setProgressBarEndColor(String cur) {
         int color = 0;
 
-        String themeName = cur;
-        switch (themeName) {
+        String theme = cur;
+        switch (theme) {
             case "RegularTheme":
                 color = ContextCompat.getColor(this, R.color.completedRegularColor);
                 break;
@@ -223,8 +247,10 @@ public class MainActivity extends Activity {
         }
 
         // Set the color to the progress bar
-        progressBar.getProgressDrawable().setColorFilter(
-                color, android.graphics.PorterDuff.Mode.SRC_IN);
+        if (progressBar != null) {
+            progressBar.getProgressDrawable().setColorFilter(
+                    color, android.graphics.PorterDuff.Mode.SRC_IN);
+        }
     }
 
     private String encodeImageToBase64(String imagePath) {
@@ -243,33 +269,6 @@ public class MainActivity extends Activity {
     private void setupButtonListeners() {
         buttonOpenAIApi.setOnClickListener(view -> OnOpenAIApiClick());
     }
-    /**
-     * Sets up a button to change the application's theme.
-     *
-     * This method assigns an OnClickListener to a button identified by buttonId. When the button is clicked,
-     * it saves the specified themeId to SharedPreferences and restarts the activity to apply the new theme.
-     *
-     * @param buttonId The resource ID of the button that will change the theme.
-     * @param themeId The resource ID of the theme to be applied when the button is clicked.
-     *
-     * Note:
-     * - The activity will be recreated when the theme is changed, so ensure to handle any necessary state
-     *   saving/restoration.
-     * - This method requires the activity to have a valid context for SharedPreferences and must be called
-     *   within the lifecycle of an activity (typically in onCreate).
-     * - The themes referenced by themeId should be defined in the styles.xml file.
-     */
-    private void setupThemeChangeButton(int buttonId, int themeId) {
-        findViewById(buttonId).setOnClickListener(view -> {
-            SharedPreferences.Editor editor = getSharedPreferences("AppPrefs", MODE_PRIVATE).edit();
-            editor.putInt("themeId", themeId);
-            editor.apply();
-
-            // Restart the activity to apply the new theme
-            recreate();
-        });
-    }
-
 
     /**
      * Unregister from the speech SDK
@@ -278,9 +277,13 @@ public class MainActivity extends Activity {
     protected void onDestroy() {
         mVoiceCmdReceiver.unregister();
         unregisterReceiver(myIntentReceiver);
+
+        if (handler != null) {
+            handler.removeCallbacksAndMessages(null); // Remove all callbacks and messages
+        }
+
         super.onDestroy();
     }
-
 
     /**
      * Utility to get the name of the current method for logging
@@ -322,6 +325,8 @@ public class MainActivity extends Activity {
 
                 // Show progress bar
                 progressBar.setVisibility(View.VISIBLE);
+                // call a function that animates the progress bar
+                doProgressBarAnimation(themeName);
 
                 Log.i(LOG_TAG, "Response: " + responseData);
             } catch (Exception e) {
@@ -330,9 +335,6 @@ public class MainActivity extends Activity {
             }
         }).start();
 
-        // Hide progress bar
-        progressBar.setVisibility(View.GONE);
-        currentProgress = 0;
     }
 
 //    private void OnOpenAIApiClick(String base64Image) {
