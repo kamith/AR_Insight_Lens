@@ -34,6 +34,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.animation.AnimatorInflater;
 
@@ -98,6 +99,7 @@ public class MainActivity extends Activity {
     private String encoddedImage;
 
     private ProgressBar progressBar;
+    private TextView progressText;
     private ObjectAnimator progressAnimator;
 
     //private Handler handler = new Handler();
@@ -140,6 +142,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         progressBar = (ProgressBar) findViewById(R.id.progressBar); // initiate the progress bar
+        progressText = findViewById(R.id.progressText);
         progressBar.setVisibility(View.GONE);
         setProgressBarColor(themeName);
 
@@ -164,32 +167,6 @@ public class MainActivity extends Activity {
 
     }
 
-    private void doProgressBarAnimation(String curTheme) {
-        progressBar.setVisibility(View.VISIBLE);
-        progressBar.setMax(100); // 100 maximum value for the progress value
-        progressBar.setProgress(0); // Initialize progress
-
-        // Create a Runnable to increment the progress bar
-        handler = new Handler(Looper.getMainLooper());
-        final Runnable progressRunnable = new Runnable() {
-            @Override
-            public void run() {
-                if (currentProgress < 100) {
-                    currentProgress += 20; // Increment progress by 20%
-                    progressBar.setProgress(currentProgress); // Set current progress
-                    handler.postDelayed(this, 1000); // Schedule the next increment in 1 second
-                } else {
-                    handler.removeCallbacks(this); // Remove callbacks when progress reaches 100%
-                    // Optionally do something when the progress completes
-                    setProgressBarEndColor(curTheme);
-                    handler.postDelayed(this, 2500);
-                    progressBar.setVisibility(View.GONE);
-                }
-            }
-        };
-
-        handler.post(progressRunnable); // Start the progress update
-    }
 
     private void setProgressBarColor(String cur) {
         int color = 0;
@@ -220,34 +197,6 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void setProgressBarEndColor(String cur) {
-        int color = 0;
-
-        String theme = cur;
-        switch (theme) {
-            case "RegularTheme":
-                color = ContextCompat.getColor(this, R.color.completedRegularColor);
-                break;
-            case "BlackWhiteTheme":
-                color = ContextCompat.getColor(this, R.color.black);
-                break;
-            case "DeuteranopiaTheme":
-                color = ContextCompat.getColor(this, R.color.completedDeuteranopiaColor);
-                break;
-            case "ProtanopiaTheme":
-                color = ContextCompat.getColor(this, R.color.completedProtanopiaColor);
-                break;
-            case "TritanopiaTheme":
-                color = ContextCompat.getColor(this, R.color.completedTritanopiaColor);
-                break;
-        }
-
-        // Set the color to the progress bar
-        if (progressBar != null) {
-            progressBar.getProgressDrawable().setColorFilter(
-                    color, android.graphics.PorterDuff.Mode.SRC_IN);
-        }
-    }
 
     private String encodeImageToBase64(String imagePath) {
         File file = new File(imagePath);
@@ -320,6 +269,7 @@ public class MainActivity extends Activity {
                 // make progress bar visible
                 runOnUiThread(() -> progressBar.setIndeterminate(true));
                 runOnUiThread(() -> progressBar.setVisibility(View.VISIBLE));
+                runOnUiThread(() -> progressText.setText(""));
                 Log.d("Progress Bar","Setting Progress Bar Visible");
 
                 Response response = client.newCall(request).execute();
@@ -327,6 +277,7 @@ public class MainActivity extends Activity {
 
                 //runOnUiThread(() -> progressBar.setVisibility(View.GONE));
                 runOnUiThread(() -> progressBar.setIndeterminate(false));
+                runOnUiThread(() -> progressText.setText("COMPLETED"));
 
                 Log.d("Progress Bar","Setting Progress Bar Off");
 
@@ -338,52 +289,6 @@ public class MainActivity extends Activity {
         }).start();
 
     }
-
-//    private void OnOpenAIApiClick(String base64Image) {
-//        OkHttpClient client = new OkHttpClient();
-//        MediaType mediaType = MediaType.parse("application/json");
-//
-//        String jsonBody = "{"
-//                + "\"model\": \"gpt-4-vision-preview\","
-//                + "\"messages\": ["
-//                + "    {"
-//                + "        \"role\": \"user\","
-//                + "        \"content\": ["
-//                + "            {"
-//                + "                \"type\": \"text\","
-//                + "                \"text\": \"Summarize the image in 2 sentences\""
-//                + "            },"
-//                + "            {"
-//                + "                \"type\": \"image_url\","
-//                + "                \"image_url\": {"
-//                + "                    \"url\": \"data:image/png;base64," + base64Image + "\""
-//                + "                }"
-//                + "            }"
-//                + "        ]"
-//                + "    }"
-//                + "]"
-//                + "}";
-//
-//        RequestBody body = RequestBody.create(mediaType, jsonBody);
-//
-//        Request request = new Request.Builder()
-//                .url(OPENAI_API_URL)
-//                .post(body)
-//                .addHeader("Content-Type", "application/json")
-//                .addHeader("Authorization", "Bearer " + BuildConfig.OPENAI_API_KEY)
-//                .build();
-//
-//        new Thread(() -> {
-//            try {
-//                Response response = client.newCall(request).execute();
-//                String responseData = response.body().string();
-//                Log.i(LOG_TAG, "Response: " + responseData);
-//            } catch (Exception e) {
-//                Log.e(LOG_TAG, "Error: " + e.getMessage());
-//                e.printStackTrace();
-//            }
-//        }).start();
-//    }
 
 
     /**

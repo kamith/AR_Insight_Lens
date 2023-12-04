@@ -2,13 +2,13 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@android:id/background">
         <shape>
-            <solid android:color="?attr/endColor"/> <!-- Background color of the progress bar -->
+            <solid android:color="?attr/endColor" />
         </shape>
     </item>
     <item android:id="@android:id/progress">
         <clip>
             <shape>
-                <solid android:color="?attr/startColor"/> <!-- Your desired progress bar color (Green) -->
+                <solid android:color="?attr/startColor"/>
             </shape>
         </clip>
     </item>
