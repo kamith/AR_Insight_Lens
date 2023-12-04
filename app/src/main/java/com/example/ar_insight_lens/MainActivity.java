@@ -9,6 +9,7 @@
 
 package com.example.ar_insight_lens;
 
+import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -28,6 +29,8 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
@@ -72,6 +75,7 @@ import android.graphics.BitmapFactory;
 
 import android.util.Base64;
 
+import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
 import org.json.JSONArray;
@@ -102,6 +106,9 @@ public class MainActivity extends Activity {
     private String capturedImagePath = null;
     private Bitmap capturedImageBitmap = null;
 
+    private ProgressBar progressBar;
+    private TextView progressText;
+    private ObjectAnimator progressAnimator;
     private final String OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
 
     /**
@@ -139,6 +146,11 @@ public class MainActivity extends Activity {
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
         setupButtonListeners();
 
+        progressBar = (ProgressBar) findViewById(R.id.progressBar); // initiate the progress bar
+        progressText = findViewById(R.id.progressText);
+        progressBar.setVisibility(View.GONE);
+        setProgressBarColor(themeName);
+
         // Create the voice command receiver class
         mVoiceCmdReceiver = new VoiceCmdReceiver(this);
 
@@ -147,19 +159,35 @@ public class MainActivity extends Activity {
         registerReceiver(myIntentReceiver , new IntentFilter(CUSTOM_SDK_INTENT));
     }
 
+    private void setProgressBarColor(String cur) {
+        int color = 0;
 
-    private String encodeImageToBase64(String imagePath) {
-        File file = new File(imagePath);
-        try (FileInputStream imageInFile = new FileInputStream(file)) {
-            // Reading a file from file system
-            byte imageData[] = new byte[(int) file.length()];
-            imageInFile.read(imageData);
-            return Base64.encodeToString(imageData, Base64.DEFAULT);
-        } catch (IOException e) {
-            Log.e(LOG_TAG, "Error in reading the image file", e);
-            return "";
+        String theme = cur;
+        switch (theme) {
+            case "RegularTheme":
+                color = ContextCompat.getColor(this, R.color.completedRegularColor);
+                break;
+            case "BlackWhiteTheme":
+                color = ContextCompat.getColor(this, R.color.gray);
+                break;
+            case "DeuteranopiaTheme":
+                color = ContextCompat.getColor(this, R.color.completedDeuteranopiaColor);
+                break;
+            case "ProtanopiaTheme":
+                color = ContextCompat.getColor(this, R.color.completedProtanopiaColor);
+                break;
+            case "TritanopiaTheme":
+                color = ContextCompat.getColor(this, R.color.completedTritanopiaColor);
+                break;
+        }
+
+        // Set the color to the progress bar
+        if (progressBar != null) {
+            progressBar.getProgressDrawable().setColorFilter(
+                    color, android.graphics.PorterDuff.Mode.SRC_IN);
         }
     }
+
 
     private void setupButtonListeners() {
         buttonOpenAIApi.setOnClickListener(view -> OnOpenAIApiClick());
@@ -257,7 +285,7 @@ public class MainActivity extends Activity {
 
 
             OkHttpClient client = new OkHttpClient();
-            MediaType mediaType = MediaType.parse("applicati    on/json");
+            MediaType mediaType = MediaType.parse("application/json");
 
             String base64Image = encodeImage(latestImagePath);
             base64Image = base64Image.replace("\"", "\\\"");
@@ -299,6 +327,9 @@ public class MainActivity extends Activity {
 
             new Thread(() -> {
                 try {
+                    runOnUiThread(() -> progressBar.setIndeterminate(true));
+                    runOnUiThread(() -> progressBar.setVisibility(View.VISIBLE));
+                    runOnUiThread(() -> progressText.setText(""));
                     Response response = client.newCall(request).execute();
                     String responseData = response.body().string();
 
@@ -313,6 +344,8 @@ public class MainActivity extends Activity {
                     } else {
                         Log.i(LOG_TAG, "No content found in response");
                     }
+                    runOnUiThread(() -> progressBar.setIndeterminate(false));
+                    runOnUiThread(() -> progressText.setText("COMPLETED"));
                 } catch (Exception e) {
                     Log.e(LOG_TAG, "Error: " + e.getMessage());
                     e.printStackTrace();
