@@ -85,6 +85,8 @@ public class VoiceCmdReceiver  extends BroadcastReceiver {
     // This is done by registering a phrase with a substitution. This eliminates localization issues
     // and is encouraged
     final String MATCH_POPUP = "popup";
+    final String MATCH_CAN_YOU_HELP = "can_you_help";
+    final String MATCH_QUESTION = "question";
     final String MATCH_CLEAR = "clear_substitution"; // 18 char
     final String MATCH_RESTORE = "restore";
     final String MATCH_EDIT_TEXT = "edit_text_pressed"; // 17 char
@@ -148,6 +150,7 @@ public class VoiceCmdReceiver  extends BroadcastReceiver {
             }
 
             // Now add any new strings.  If you put a substitution in the second argument, you will be passed that string instead of the full string
+
             sc.insertKeycodePhrase("Alfa", KEYCODE_A );
             sc.insertKeycodePhrase("Bravo", KEYCODE_B);
             sc.insertKeycodePhrase("Charlie", KEYCODE_C);
@@ -198,6 +201,8 @@ public class VoiceCmdReceiver  extends BroadcastReceiver {
             // or SDK version 1.3.  But it is harmless when not required. It indicates that the recognizer is making a
             // substitution.  When the multi-word string is matched (in any language) the associated MATCH string
             // will be sent to the BroadcastReceiver
+            sc.insertPhrase("Can you help", MATCH_CAN_YOU_HELP);
+            sc.insertPhrase("Question", MATCH_QUESTION);
             sc.insertPhrase(mMainActivity.getResources().getString(R.string.btn_text_pop_up),  MATCH_POPUP);
             sc.insertPhrase(mMainActivity.getResources().getString(R.string.btn_text_restore), MATCH_RESTORE);
             sc.insertPhrase(mMainActivity.getResources().getString(R.string.btn_text_clear),   MATCH_CLEAR);
@@ -251,7 +256,11 @@ public class VoiceCmdReceiver  extends BroadcastReceiver {
                     String phrase = intent.getStringExtra(VuzixSpeechClient.PHRASE_STRING_EXTRA);
                     Log.e(mMainActivity.LOG_TAG, mMainActivity.getMethodName() + " \"" + phrase + "\"");
                     // Determine the specific phrase that was recognized and act accordingly
-                    if (phrase.equals(MATCH_POPUP)) {
+                    if(phrase.equals(MATCH_CAN_YOU_HELP)) {
+                        mMainActivity.OnOpenAIApiClick();
+                    } else if(phrase.equals(MATCH_QUESTION)) {
+                        mMainActivity.OnQuestionAsk();
+                    }else if (phrase.equals(MATCH_POPUP)) {
                         mMainActivity.OnPopupClick();
                     } else if (phrase.equals(MATCH_RESTORE)) {
                         mMainActivity.OnRestoreClick();

@@ -70,6 +70,8 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.services.vision.v1.Vision;
 import com.google.api.services.vision.v1.VisionRequestInitializer;
+import com.vuzix.sdk.speechrecognitionservice.VuzixSpeechClient;
+
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
@@ -248,8 +250,14 @@ public class MainActivity extends Activity {
         myToast.show();
     }
 
+    void OnQuestionAsk() {
 
-    private void OnOpenAIApiClick() {
+    }
+
+    void OnTakePhoto(){
+
+    }
+    void OnOpenAIApiClick() {
         if (capturedImageBitmap == null) {
             new Thread(() -> {
                 try {
@@ -474,4 +482,6 @@ public class MainActivity extends Activity {
             Toast.makeText(context, "Custom Intent Detected", Toast.LENGTH_LONG).show();
         }
     }
+
+
 }
