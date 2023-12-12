@@ -16,8 +16,7 @@
         android:layout_marginBottom="12dp"
         android:focusable="false"
         android:focusableInTouchMode="false"
-        android:text="@string/overview"
-        app:layout_constraintBottom_toTopOf="@+id/btn_openai_api"
+        android:text="Welcome to Insight Lens"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/guideline4" />
@@ -52,7 +51,8 @@
         app:layout_constraintHorizontal_bias="0.494"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btn_openai_api"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textView"/>
 
     <TextView
         android:id="@+id/progressText"

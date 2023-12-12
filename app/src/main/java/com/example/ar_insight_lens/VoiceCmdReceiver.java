@@ -85,8 +85,14 @@ public class VoiceCmdReceiver  extends BroadcastReceiver {
     // This is done by registering a phrase with a substitution. This eliminates localization issues
     // and is encouraged
     final String MATCH_POPUP = "popup";
-    final String MATCH_CAN_YOU_HELP = "can_you_help";
-    final String MATCH_QUESTION = "question";
+    final String MATCH_PHOTO = "photo";
+    final String MATCH_SUMMARIZE = "summarize";
+    final String MATCH_MEAL = "meal";
+    final String MATCH_DRINK = "drink";
+    final String MATCH_CHICKEN = "chicken";
+    final String MATCH_BEEF = "beef";
+    final String MATCH_PORK = "pork";
+    final String MATCH_VEGETARIAN = "vegetarian";
     final String MATCH_CLEAR = "clear_substitution"; // 18 char
     final String MATCH_RESTORE = "restore";
     final String MATCH_EDIT_TEXT = "edit_text_pressed"; // 17 char
@@ -135,6 +141,7 @@ public class VoiceCmdReceiver  extends BroadcastReceiver {
                 sc.insertWakeWordPhrase("hey insight lens");
                 sc.insertWakeWordPhrase("start");
                 sc.insertWakeWordPhrase("begin");
+                sc.insertWakeWordPhrase("luna");
             } catch (NoSuchMethodError e) {
                 Log.i(mMainActivity.LOG_TAG, "Setting wake words is not supported. It is introduced in M300 v1.6.6, Blade v2.6, and M400 v1.0.0");
             }
@@ -201,8 +208,14 @@ public class VoiceCmdReceiver  extends BroadcastReceiver {
             // or SDK version 1.3.  But it is harmless when not required. It indicates that the recognizer is making a
             // substitution.  When the multi-word string is matched (in any language) the associated MATCH string
             // will be sent to the BroadcastReceiver
-            sc.insertPhrase("Can you help", MATCH_CAN_YOU_HELP);
-            sc.insertPhrase("Question", MATCH_QUESTION);
+            sc.insertPhrase("Take Photo", MATCH_PHOTO);
+            sc.insertPhrase("summarize", MATCH_SUMMARIZE);
+            sc.insertPhrase("meal", MATCH_MEAL);
+            sc.insertPhrase("drink", MATCH_DRINK);
+            sc.insertPhrase("chicken", MATCH_CHICKEN);
+            sc.insertPhrase("beef", MATCH_BEEF);
+            sc.insertPhrase("pork", MATCH_PORK);
+            sc.insertPhrase("vegetarian", MATCH_VEGETARIAN);
             sc.insertPhrase(mMainActivity.getResources().getString(R.string.btn_text_pop_up),  MATCH_POPUP);
             sc.insertPhrase(mMainActivity.getResources().getString(R.string.btn_text_restore), MATCH_RESTORE);
             sc.insertPhrase(mMainActivity.getResources().getString(R.string.btn_text_clear),   MATCH_CLEAR);
@@ -256,11 +269,25 @@ public class VoiceCmdReceiver  extends BroadcastReceiver {
                     String phrase = intent.getStringExtra(VuzixSpeechClient.PHRASE_STRING_EXTRA);
                     Log.e(mMainActivity.LOG_TAG, mMainActivity.getMethodName() + " \"" + phrase + "\"");
                     // Determine the specific phrase that was recognized and act accordingly
-                    if(phrase.equals(MATCH_CAN_YOU_HELP)) {
-                        mMainActivity.OnOpenAIApiClick();
-                    } else if(phrase.equals(MATCH_QUESTION)) {
-                        mMainActivity.OnQuestionAsk();
-                    }else if (phrase.equals(MATCH_POPUP)) {
+
+
+                    if(phrase.equals(MATCH_MEAL)) {
+                        mMainActivity.OnMealPrompt();
+                    } else if(phrase.equals(MATCH_DRINK)) {
+                        mMainActivity.OnDrinkPrompt();
+                    } else if(phrase.equals(MATCH_CHICKEN)) {
+                        mMainActivity.OnChickenPrompt();
+                    } else if(phrase.equals(MATCH_BEEF)) {
+                        mMainActivity.OnBeefPrompt();
+                    } else if(phrase.equals(MATCH_PORK)) {
+                        mMainActivity.OnPorkPrompt();
+                    } else if(phrase.equals(MATCH_VEGETARIAN)) {
+                        mMainActivity.OnVegetarianPrompt();
+                    } else if(phrase.equals(MATCH_PHOTO)) {
+                        mMainActivity.OnTakePhoto();
+                    } else if(phrase.equals(MATCH_SUMMARIZE)) {
+                        mMainActivity.OnSummarization();
+                    } else if (phrase.equals(MATCH_POPUP)) {
                         mMainActivity.OnPopupClick();
                     } else if (phrase.equals(MATCH_RESTORE)) {
                         mMainActivity.OnRestoreClick();

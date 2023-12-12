@@ -21,7 +21,11 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.provider.MediaStore;
+import android.speech.RecognitionListener;
+import android.speech.RecognizerIntent;
+import android.speech.SpeechRecognizer;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.View;
@@ -40,6 +44,7 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -104,13 +109,16 @@ public class MainActivity extends Activity {
     static final int REQUEST_IMAGE_CAPTURE = 1;
     private String encoddedImage;
     private File photoFile;
-
+    Uri imageUri;
     private String capturedImagePath = null;
     private Bitmap capturedImageBitmap = null;
-
     private ProgressBar progressBar;
     private TextView progressText;
     private ObjectAnimator progressAnimator;
+
+    private String latestImagePath = null;
+
+    private String base64Image = null;
     private final String OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
 
     /**
@@ -191,8 +199,9 @@ public class MainActivity extends Activity {
     }
 
 
+
     private void setupButtonListeners() {
-        buttonOpenAIApi.setOnClickListener(view -> OnOpenAIApiClick());
+        buttonOpenAIApi.setOnClickListener(view -> OnOpenAIApiClick("Summarize the following menu items for me"));
     }
     /**
      * Sets up a button to change the application's theme.
@@ -250,53 +259,76 @@ public class MainActivity extends Activity {
         myToast.show();
     }
 
-    void OnQuestionAsk() {
-
+    void OnMealPrompt(){
+        OnOpenAIApiClick("Give me a sample meal with an appetizer, entree and salard, also a dessert if there is one, include total cost. Be brief and short");
+    }
+    void OnDrinkPrompt(){
+        OnOpenAIApiClick("Give me a few drink options on the menu if you can find, be brief and short, if not say no drinks listed");
     }
 
-    void OnTakePhoto(){
-
+    void OnChickenPrompt(){
+        OnOpenAIApiClick("Give me a few chicken options on the menu, be brief and short");
     }
-    void OnOpenAIApiClick() {
-        if (capturedImageBitmap == null) {
-            new Thread(() -> {
-                try {
-                    Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-                        startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-                    }
-                    Log.d("Image", "IMAGE CAPTURED GOOD");
-                } catch (Exception e) {
-                    Log.e(LOG_TAG, "Error: " + e.getMessage());
-                    e.printStackTrace();
-                }
-            }).start();
-        } else {
-            String latestImagePath = null;
-            File cameraDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), "Camera");
-            if (cameraDir.exists() && cameraDir.isDirectory()) {
-                File[] files = cameraDir.listFiles();
-                if (files != null && files.length > 0) {
-                    Arrays.sort(files, (f1, f2) -> Long.compare(f2.lastModified(), f1.lastModified())); // Sort in descending order
-                    File latestImage = files[0];
 
-                    latestImagePath = latestImage.getAbsolutePath();
-                    Log.d(LOG_TAG, "Latest image path: " + latestImagePath);
+    void OnBeefPrompt(){
+        OnOpenAIApiClick("Give me a few beef options on the menu, be brief and short");
+    }
 
-                    // You can then use this path as needed
-                } else {
-                    Log.d(LOG_TAG, "No files found in the directory");
+    void OnPorkPrompt(){
+        OnOpenAIApiClick("Give me a few pork options on the menu, be brief and short");
+    }
+
+    void OnVegetarianPrompt(){
+        OnOpenAIApiClick("Give me a few vegetarian options on the menu, be brief and short");
+    }
+
+    void OnSummarization(){
+        OnOpenAIApiClick("Summarize what's on the image, if it is a menu, list out few general menu items. Be brief and short.");
+    }
+    void OnTakePhoto() {
+        new Thread(() -> {
+            try {
+                Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+                    startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
                 }
-            } else {
-                Log.d(LOG_TAG, "Camera directory does not exist");
+                Log.d("Image", "IMAGE CAPTURED GOOD");
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "Error: " + e.getMessage());
+                e.printStackTrace();
             }
+        }).start();
 
+        File cameraDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), "Camera");
+        if (cameraDir.exists() && cameraDir.isDirectory()) {
+            File[] files = cameraDir.listFiles();
+            if (files != null && files.length > 0) {
+                Arrays.sort(files, (f1, f2) -> Long.compare(f2.lastModified(), f1.lastModified())); // Sort in descending order
+                File latestImage = files[0];
 
+                latestImagePath = latestImage.getAbsolutePath();
+                Log.d(LOG_TAG, "Latest image path: " + latestImagePath);
+
+                // You can then use this path as needed
+            } else {
+                Log.d(LOG_TAG, "No files found in the directory");
+            }
+        } else {
+            Log.d(LOG_TAG, "Camera directory does not exist");
+        }
+
+        if(latestImagePath != null){
+            base64Image = encodeImage(latestImagePath);
+            base64Image = base64Image.replace("\"", "\\\"");
+        } else {
+            Log.d(LOG_TAG, "In Encoding image, the latestImagePath was Null");
+        }
+    }
+
+    void OnOpenAIApiClick(String userPrompt) {
+        if (base64Image != null) {
             OkHttpClient client = new OkHttpClient();
             MediaType mediaType = MediaType.parse("application/json");
-
-            String base64Image = encodeImage(latestImagePath);
-            base64Image = base64Image.replace("\"", "\\\"");
 
             String jsonBody = "{\"model\": \"gpt-4-vision-preview\","
                     + "\"messages\": ["
@@ -305,7 +337,7 @@ public class MainActivity extends Activity {
                     + "        \"content\": ["
                     + "            {"
                     + "                \"type\": \"text\","
-                    + "                \"text\": \"Tell me whats in the image\""
+                    + "                \"text\": \"" + userPrompt + "\""
                     + "            },"
                     + "            {"
                     + "                \"type\": \"image_url\","
